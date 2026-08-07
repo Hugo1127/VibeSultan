@@ -1,0 +1,190 @@
+﻿{
+    "schemaVersion":  1,
+    "game":  "sultan",
+    "screen":  {
+                   "id":  "play",
+                   "name":  "GameScene",
+                   "phase":  "play"
+               },
+    "terminal":  false,
+    "values":  {
+                   "eventOptionCount":  0,
+                   "rites":  [
+
+                             ],
+                   "inGame":  true,
+                   "sudan":  {
+                                 "redrawTimes":  0,
+                                 "redrawPerRound":  3,
+                                 "removeCount":  0,
+                                 "initLife":  7,
+                                 "boxShow":  true
+                             },
+                   "day":  0,
+                   "events":  [
+
+                              ],
+                   "riteCount":  0,
+                   "counters":  {
+                                    "7000060":  1,
+                                    "7100006":  3
+                                },
+                   "initDone":  false,
+                   "cards":  [
+                                 {
+                                     "uid":  29,
+                                     "id":  2000001,
+                                     "bag":  0,
+                                     "bagpos":  1,
+                                     "life":  0,
+                                     "count":  1,
+                                     "rare":  3,
+                                     "type":  "char",
+                                     "customName":  "",
+                                     "inHand":  true
+                                 },
+                                 {
+                                     "uid":  30,
+                                     "id":  2000005,
+                                     "bag":  0,
+                                     "bagpos":  0,
+                                     "life":  0,
+                                     "count":  1,
+                                     "rare":  2,
+                                     "type":  "char",
+                                     "customName":  "",
+                                     "inHand":  true
+                                 },
+                                 {
+                                     "uid":  31,
+                                     "id":  2000006,
+                                     "bag":  0,
+                                     "bagpos":  0,
+                                     "life":  0,
+                                     "count":  1,
+                                     "rare":  2,
+                                     "type":  "char",
+                                     "customName":  "",
+                                     "inHand":  true
+                                 },
+                                 {
+                                     "uid":  32,
+                                     "id":  2000008,
+                                     "bag":  0,
+                                     "bagpos":  0,
+                                     "life":  0,
+                                     "count":  1,
+                                     "rare":  2,
+                                     "type":  "char",
+                                     "customName":  "",
+                                     "inHand":  true
+                                 },
+                                 {
+                                     "uid":  33,
+                                     "id":  2000009,
+                                     "bag":  0,
+                                     "bagpos":  0,
+                                     "life":  0,
+                                     "count":  1,
+                                     "rare":  3,
+                                     "type":  "char",
+                                     "customName":  "",
+                                     "inHand":  true
+                                 },
+                                 {
+                                     "uid":  34,
+                                     "id":  2000010,
+                                     "bag":  0,
+                                     "bagpos":  0,
+                                     "life":  0,
+                                     "count":  1,
+                                     "rare":  4,
+                                     "type":  "char",
+                                     "customName":  "",
+                                     "inHand":  true
+                                 },
+                                 {
+                                     "uid":  35,
+                                     "id":  2000011,
+                                     "bag":  0,
+                                     "bagpos":  0,
+                                     "life":  0,
+                                     "count":  1,
+                                     "rare":  3,
+                                     "type":  "char",
+                                     "customName":  "",
+                                     "inHand":  true
+                                 },
+                                 {
+                                     "uid":  36,
+                                     "id":  2000012,
+                                     "bag":  0,
+                                     "bagpos":  0,
+                                     "life":  0,
+                                     "count":  1,
+                                     "rare":  3,
+                                     "type":  "char",
+                                     "customName":  "",
+                                     "inHand":  true
+                                 }
+                             ],
+                   "hasGameController":  true,
+                   "handCount":  166
+               },
+    "actions":  [
+                    {
+                        "id":  "noop",
+                        "label":  "No-op",
+                        "enabled":  true
+                    },
+                    {
+                        "id":  "probe_types",
+                        "label":  "Refresh type probe",
+                        "enabled":  true
+                    },
+                    {
+                        "id":  "select_card",
+                        "label":  "Select card by uid",
+                        "enabled":  true,
+                        "paramsHint":  {
+                                           "uid":  "int"
+                                       }
+                    },
+                    {
+                        "id":  "next_round",
+                        "label":  "Advance to next round",
+                        "enabled":  true
+                    },
+                    {
+                        "id":  "continue",
+                        "label":  "Continue / dismiss",
+                        "enabled":  true
+                    }
+                ],
+    "bindings":  {
+                     "hasInterop":  true,
+                     "initDone":  false,
+                     "inGame":  true,
+                     "hasPlayer":  true,
+                     "hasController":  true,
+                     "needNewInitId":  1,
+                     "needLoadRound":  0,
+                     "optionActive":  false,
+                     "confirmActive":  false,
+                     "ritePanelActive":  false,
+                     "difficultyActive":  false,
+                     "gameOver":  false,
+                     "playerRound":  0,
+                     "playerSuccess":  false,
+                     "playerOverReason":  -2147483648,
+                     "cardCount":  166,
+                     "riteCount":  0,
+                     "sceneId":  "play",
+                     "sceneName":  "GameScene",
+                     "bagIndex":  0,
+                     "totalCards":  166,
+                     "globalCounterCache":  {
+
+                                            }
+                 }
+}

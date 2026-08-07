@@ -1,0 +1,103 @@
+# --- Secrets / local env ---
+env/.env
+env/.env.*
+!env/.env.example
+!env/.env.example.zh
+
+# --- Node / TypeScript ---
+node_modules/
+**/node_modules/
+agents/**/dist/
+packages/**/dist/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =============================================================================
+# Agent runtime data (never commit — regenerates while playing / recording)
+# =============================================================================
+
+# Run logs: events.jsonl, decision-traces, step-*-reasoning.txt, samples
+agents/*/logs/**
+!agents/*/logs/
+!agents/*/logs/PLACEHOLDER.md
+
+# Manual record → replay JSON scripts
+agents/*/replays/**
+!agents/*/replays/
+!agents/*/replays/PLACEHOLDER.md
+
+# Session memory: experiences, cards, episodes, sudan routes, etc.
+agents/*/memory/**
+!agents/*/memory/
+!agents/*/memory/PLACEHOLDER.md
+# Keep sessions/ directory + placeholder; ignore every real session folder.
+!agents/*/memory/sessions/
+agents/*/memory/sessions/**
+!agents/*/memory/sessions/PLACEHOLDER.md
+
+# Optional local dumps / caches under an agent package
+agents/*/tmp/
+agents/*/tmp/**
+agents/*/cache/
+agents/*/cache/**
+agents/*/data/runtime/
+agents/*/data/runtime/**
+agents/*/.cache/
+
+# BepInEx / game-side recordings copied into the repo by mistake
+**/recordings/
+**/BepInEx/recordings/
+
+# --- Game install (local Steam / BepInEx copy) ---
+# Keep the folder; put a local game copy under game/ (see PLACEHOLDER).
+game/**
+!game/PLACEHOLDER.md
+
+# --- Upstream refs (large archives / vendored trees) ---
+refs/**
+!refs/PLACEHOLDER.md
+
+# --- Plugin build outputs ---
+**/bin/
+**/obj/
+*.user
+*.suo
+
+# --- Decompiler / IL spy / probe dumps ---
+**/_decomp/
+tmp-ilspy/
+tmp-bind-probe/
+/tmp-*/
+/tmp-*.json
+/tmp-*.py
+/tmp-*.txt
+/tmp-*.mjs
+/tmp-*.cs
+/tmp-*.md
+
+# --- OS / IDE / editor noise ---
+.cursorindexingignore
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vs/
+*.swp
+*~
+.specstory/
+docs/plans/
+docs/adr/
+docs/sample-data/
+DOCUMENTS/
+
+# --- Misc logs & caches ---
+*.log
+*.tmp
+*.temp
+.cache/
+.turbo/
+coverage/
+*.lcov

@@ -1,0 +1,33 @@
+name: ci
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  typescript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm install
+      - run: npm run build
+      - run: npm test
+
+  csharp:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "6.0.x"
+      - name: Add BepInEx NuGet source
+        run: dotnet nuget add source https://nuget.bepinex.dev/v3/index.json -n BepInEx
+      - name: Test pure observer logic
+        run: dotnet test plugins/SultanObserver.Tests/SultanObserver.Tests.csproj -c Release
+      - name: Build observer plugin
+        run: dotnet build plugins/SultanObserver/SultanObserver.csproj -c Release -p:SkipPluginCopy=true

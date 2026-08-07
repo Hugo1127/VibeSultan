@@ -1,0 +1,53 @@
+{
+  "name": "@vibesultan/sultan-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "tsx src/index.ts",
+    "dev": "tsx src/index.ts",
+    "autoplay": "tsx src/orchestrator.ts",
+    "record": "tsx scripts/record-manual.ts",
+    "annotate-replay": "tsx scripts/annotate-replay.ts",
+    "replay": "tsx scripts/replay.ts",
+    "verify:http-contract": "tsx scripts/verify-http-contract.ts",
+    "verify:equip": "tsx scripts/verify-equip.ts",
+    "verify:equip:live": "tsx scripts/verify-equip-live.ts",
+    "verify:llm-stream-retry": "tsx scripts/verify-llm-stream-retry.ts",
+    "verify:minimal-loop": "tsx scripts/verify-minimal-loop.ts",
+    "verify:minimal-loop:mock": "tsx scripts/verify-minimal-loop.ts --mock",
+    "verify:learning": "tsx scripts/verify-learning.ts",
+    "verify:entity-memory": "tsx scripts/verify-entity-memory.ts",
+    "verify:episode-tracker": "tsx scripts/verify-episode-tracker.ts",
+    "verify:entity-enrichment": "tsx scripts/verify-entity-enrichment.ts",
+    "backfill:entity-outcomes": "tsx scripts/backfill-entity-outcomes.ts",
+    "verify:strategy": "tsx scripts/verify-strategy-engine.ts",
+    "verify:card-tier": "tsx scripts/verify-card-tier.ts",
+    "verify:action-chain": "tsx scripts/verify-action-chain.ts",
+    "verify:day-close-review": "tsx scripts/verify-day-close-review.ts",
+    "verify:sudan-routes": "tsx scripts/verify-sudan-routes.ts",
+    "verify:day-boundary": "tsx scripts/verify-day-boundary.ts",
+    "verify:rite-explore": "tsx scripts/verify-rite-explore.ts",
+    "verify:backtrack-recovery": "tsx scripts/verify-backtrack-recovery.ts",
+    "verify:new-game-reset": "tsx scripts/verify-new-game-reset.ts",
+    "verify:social-capital": "tsx scripts/verify-social-capital.ts",
+    "scrub:session-memory": "tsx scripts/scrub-session-memory.ts"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@vibesultan/agent-learning-core": "*",
+    "asciichart": "^1.5.25",
+    "dotenv": "^16.4.7",
+    "js-tiktoken": "^1.0.21",
+    "openai": "^4.86.2"
+  },
+  "devDependencies": {
+    "@types/asciichart": "^1.5.8",
+    "@types/node": "^22.13.10",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

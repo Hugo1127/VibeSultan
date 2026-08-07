@@ -1,0 +1,97 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>VibeSultan.Sultan.Observer</AssemblyName>
+    <RootNamespace>VibeSultan.Sultan.Observer</RootNamespace>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <DefineConstants Condition="'$(HasGameInterop)' == 'true'">$(DefineConstants);GAME_INTEROP</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.785" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <!-- Prefer real interop after first game launch; fall back to compile stubs. -->
+  <ItemGroup Condition="Exists('$(InteropDir)\UnityEngine.CoreModule.dll')">
+    <Reference Include="Il2Cppmscorlib">
+      <HintPath>$(InteropDir)\Il2Cppmscorlib.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Il2CppSystem" Condition="Exists('$(InteropDir)\Il2CppSystem.dll')">
+      <HintPath>$(InteropDir)\Il2CppSystem.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Il2CppSystem.Core" Condition="Exists('$(InteropDir)\Il2CppSystem.Core.dll')">
+      <HintPath>$(InteropDir)\Il2CppSystem.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(InteropDir)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule" Condition="Exists('$(InteropDir)\UnityEngine.IMGUIModule.dll')">
+      <HintPath>$(InteropDir)\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule" Condition="Exists('$(InteropDir)\UnityEngine.TextRenderingModule.dll')">
+      <HintPath>$(InteropDir)\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI" Condition="Exists('$(InteropDir)\UnityEngine.UI.dll')">
+      <HintPath>$(InteropDir)\UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule" Condition="Exists('$(InteropDir)\UnityEngine.UIModule.dll')">
+      <HintPath>$(InteropDir)\UnityEngine.UIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro" Condition="Exists('$(InteropDir)\Unity.TextMeshPro.dll')">
+      <HintPath>$(InteropDir)\Unity.TextMeshPro.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(HasGameInterop)' == 'true'">
+    <Reference Include="Game">
+      <HintPath>$(InteropDir)\Game.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Core">
+      <HintPath>$(InteropDir)\Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Common">
+      <HintPath>$(InteropDir)\Common.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Base" Condition="Exists('$(InteropDir)\Base.dll')">
+      <HintPath>$(InteropDir)\Base.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup Condition="!Exists('$(InteropDir)\UnityEngine.CoreModule.dll')">
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(UnityStubDir)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="EnsureUnityStub" BeforeTargets="ResolveAssemblyReferences" Condition="!Exists('$(InteropDir)\UnityEngine.CoreModule.dll')">
+    <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\refs\unity-stubs\UnityEngine.CoreModule\UnityEngine.CoreModule.csproj" Targets="Build" Properties="Configuration=Release" />
+  </Target>
+
+  <Target Name="CopyToPlugins" AfterTargets="Build" Condition="'$(SkipPluginCopy)' != 'true'">
+    <MakeDir Directories="$(PluginOutDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginOutDir)" SkipUnchangedFiles="true" ContinueOnError="true" />
+    <Copy SourceFiles="$(OutputPath)Newtonsoft.Json.dll" DestinationFolder="$(PluginOutDir)" SkipUnchangedFiles="true" ContinueOnError="true" Condition="Exists('$(OutputPath)Newtonsoft.Json.dll')" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(SteamGameDir)\BepInEx\plugins" SkipUnchangedFiles="true" ContinueOnError="true" Condition="Exists('$(SteamGameDir)\BepInEx\plugins')" />
+    <Copy SourceFiles="$(OutputPath)Newtonsoft.Json.dll" DestinationFolder="$(SteamGameDir)\BepInEx\plugins" SkipUnchangedFiles="true" ContinueOnError="true" Condition="Exists('$(SteamGameDir)\BepInEx\plugins') And Exists('$(OutputPath)Newtonsoft.Json.dll')" />
+  </Target>
+</Project>
