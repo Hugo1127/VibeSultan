@@ -59,24 +59,44 @@ VibeSultan/
 ├── packages/agent-learning-core # 通用记忆与经验迭代库
 ├── env/                         # 共享环境变量模板
 ├── game/Sultan's Game/          # 游戏安装目录 + BepInEx（本地）
-├── refs/                        # BepInEx 6 / Unity stubs 等参考
+├── refs/                        # BepInEx 6 loader zip / Unity stubs 等参考
+│   └── PITFALLS.md              # 踩坑与维护记录（部署/构建/LLM 问题都在这）
 ├── docs/                        # 设计文档、迁移清单、探针笔记
 └── assets/                      # 资源与素材
 ```
 
 ## 快速开始
 
+> 部署/构建/LLM 报错先查 [`refs/PITFALLS.md`](refs/PITFALLS.md)，里面按"症状 → 根因 → 处置"记录了已经踩过的坑。
+
 ### 1. 部署 Observer
 
+仓库已自带 loader：`refs/BepInEx-Unity.IL2CPP-6.0.0-be.785.zip`（BepInEx 6 **Unity.IL2CPP** 版，win-x64，约 34 MB），
+解压到游戏目录即可，不需要另外下载：
+
 ```powershell
-# 游戏放到 game/Sultan's Game/, 并安装 BepInEx 6 Unity.IL2CPP
-cd plugins/SultanObserver
-.\deploy.ps1
+# 在仓库根目录执行
+Expand-Archive -Path refs\BepInEx-Unity.IL2CPP-6.0.0-be.785.zip `
+               -DestinationPath "game\Sultan's Game" -Force
+# 解压后应有 BepInEx\core\BepInEx.Unity.IL2CPP.dll
 ```
 
-(也有shell版本)
+> **启动位置**：`deploy.ps1` 默认只写仓库内的 `game/Sultan's Game/` 副本。
+> 但 Steam 有时会接管启动、从自己的安装目录（如 `D:\Steam\steamapps\common\Sultan's Game`）运行，
+> 那边没有 loader 就没有插件。需要走 Steam 时，把同一套 loader 镜像过去（只新增 loader 文件，
+> 不动游戏本体），再用 `$env:SULTAN_GAME_DIR` 让 `deploy.ps1` 同步插件；
+> 具体命令见 [`refs/PITFALLS.md`](refs/PITFALLS.md) 第 6 节。
 
-启动游戏（建议 Steam 在线）, 确认：
+```powershell
+cd plugins/SultanObserver
+.\deploy.ps1
+
+# 首次没有 interop 时会用 refs/unity-stubs 编译：能起 HTTP、能查 /health，
+# 但游戏绑定全部被编译掉（GAME_INTEROP=false）。
+# 启动游戏一次生成 BepInEx/interop/*.dll 后，再跑一次 .\deploy.ps1 才是完整插件。
+```
+
+启动游戏，确认：
 
 ```bash
 curl http://127.0.0.1:17890/health

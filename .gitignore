@@ -58,6 +58,14 @@ game/**
 # --- Upstream refs (large archives / vendored trees) ---
 refs/**
 !refs/PLACEHOLDER.md
+# Maintenance notes are documentation, not a download.
+!refs/*.md
+# Compile-time Unity stubs are source, not a download: they must ship so a
+# fresh clone can build before the game has ever been launched.
+!refs/unity-stubs/
+!refs/unity-stubs/**
+# Bundled BepInEx 6 IL2CPP loader (~34 MB) so a fresh clone needs no download.
+!refs/BepInEx-Unity.IL2CPP-6.0.0-be.785.zip
 
 # --- Plugin build outputs ---
 **/bin/

@@ -83,8 +83,21 @@
     </Reference>
   </ItemGroup>
 
-  <Target Name="EnsureUnityStub" BeforeTargets="ResolveAssemblyReferences" Condition="!Exists('$(InteropDir)\UnityEngine.CoreModule.dll')">
-    <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\refs\unity-stubs\UnityEngine.CoreModule\UnityEngine.CoreModule.csproj" Targets="Build" Properties="Configuration=Release" />
+  <!--
+    Without BepInEx/interop, compile against the checked-in Unity stubs. Build
+    them before assembly resolution so the HintPath above already exists.
+  -->
+  <Target Name="EnsureUnityStub"
+          BeforeTargets="ResolveAssemblyReferences"
+          Condition="!Exists('$(InteropDir)\UnityEngine.CoreModule.dll') And Exists('$(UnityStubProject)')">
+    <MSBuild Projects="$(UnityStubProject)" Targets="Restore;Build" Properties="Configuration=Release" />
+  </Target>
+
+  <Target Name="ReportMissingUnityReferences"
+          BeforeTargets="CoreCompile"
+          Condition="!Exists('$(InteropDir)\UnityEngine.CoreModule.dll') And !Exists('$(UnityStubDir)\UnityEngine.CoreModule.dll')">
+    <Error Code="SULTAN001"
+           Text="No UnityEngine references found. Restore the compile-time stubs (refs/unity-stubs/UnityEngine.CoreModule/) or install BepInEx 6 IL2CPP into '$(GameDir)' and launch the game once so BepInEx generates '$(InteropDir)'. See docs/games/sultan/il2cpp-probe.md." />
   </Target>
 
   <Target Name="CopyToPlugins" AfterTargets="Build" Condition="'$(SkipPluginCopy)' != 'true'">

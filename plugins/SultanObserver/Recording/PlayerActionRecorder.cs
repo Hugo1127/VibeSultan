@@ -46,6 +46,10 @@ namespace VibeSultan.Sultan.Observer.Recording
 
         public void Install()
         {
+            var ok = 0;
+            var failed = 0;
+
+#if GAME_INTEROP
             // Boot-safe: install only the original rite/equip recorder patches.
             // Do not attach ThinkController / CardDragManager probes here — they can
             // native-crash IL2CPP Harmony during Chainloader and prevent game start.
@@ -63,8 +67,6 @@ namespace VibeSultan.Sultan.Observer.Recording
                 typeof(CardRemoveFromSlotPatch)
             };
 
-            var ok = 0;
-            var failed = 0;
             foreach (var type in safeTypes)
             {
                 try
@@ -79,6 +81,10 @@ namespace VibeSultan.Sultan.Observer.Recording
                         "PlayerActionRecorder skip patch " + type.Name + ": " + ex.Message);
                 }
             }
+#else
+            Plugin.Log?.LogInfo(
+                "PlayerActionRecorder: built without GAME_INTEROP; recorder patches disabled.");
+#endif
 
 #if GAME_INTEROP
             // DoIThink is a real method (not a field accessor) and is already used by

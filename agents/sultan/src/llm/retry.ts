@@ -1,14 +1,18 @@
-/** HTTP statuses that will not succeed on retry. */
-const NON_RETRYABLE = new Set([401, 403]);
+/**
+ * Statuses worth retrying: transient throttling / timeout / conflict / server
+ * faults. Everything else in 4xx is a deterministic request error (bad message
+ * order, auth, payload too large) — retrying it only burns the retry budget.
+ */
+const RETRYABLE_4XX = new Set([408, 409, 425, 429]);
 
 export function isRetryableHttpStatus(status: number): boolean {
   if (!Number.isFinite(status) || status < 400) {
     return false;
   }
-  if (NON_RETRYABLE.has(status)) {
-    return false;
+  if (RETRYABLE_4XX.has(status)) {
+    return true;
   }
-  return true;
+  return status >= 500;
 }
 
 export function sleep(ms: number): Promise<void> {

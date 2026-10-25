@@ -15,6 +15,7 @@
     "verify:equip": "tsx scripts/verify-equip.ts",
     "verify:equip:live": "tsx scripts/verify-equip-live.ts",
     "verify:llm-stream-retry": "tsx scripts/verify-llm-stream-retry.ts",
+    "verify:message-order": "tsx scripts/verify-message-order.ts",
     "verify:minimal-loop": "tsx scripts/verify-minimal-loop.ts",
     "verify:minimal-loop:mock": "tsx scripts/verify-minimal-loop.ts --mock",
     "verify:learning": "tsx scripts/verify-learning.ts",

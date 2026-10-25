@@ -13,13 +13,38 @@
 ## Install status
 
 - BepInEx extracted into [`game/Sultan's Game`](../../../game/Sultan's%20Game)
-- Reference copy: [`refs/BepInEx-Unity.IL2CPP-6.0.0-be.785`](../../../refs/BepInEx-Unity.IL2CPP-6.0.0-be.785)
+- Loader bundled in the repo: [`refs/BepInEx-Unity.IL2CPP-6.0.0-be.785.zip`](../../../refs/BepInEx-Unity.IL2CPP-6.0.0-be.785.zip)
+  (BepInEx 6 **Unity.IL2CPP**, win-x64, ~34 MB — no separate download needed)
 - Plugin deploy: `plugins/SultanObserver/deploy.ps1`
+
+Extract the bundled loader into the game folder:
+
+```powershell
+# run from the repository root
+Expand-Archive -Path refs\BepInEx-Unity.IL2CPP-6.0.0-be.785.zip `
+               -DestinationPath "game\Sultan's Game" -Force
+```
+
+After extraction `BepInEx\core\BepInEx.Unity.IL2CPP.dll` must exist — that is the
+only reliable marker that the loader is the IL2CPP flavour.
+
+> **Launch location matters.** Steam sometimes takes over the launch and runs its
+> own install (`D:\Steam\steamapps\common\Sultan's Game`), which has no loader and
+> therefore no plugin. To play through Steam, mirror the same loader files there
+> (`BepInEx/`, `dotnet/`, `winhttp.dll`, `doorstop_config.ini`, `.doorstop_version`)
+> without touching the game binaries, then point `deploy.ps1` at it with
+> `$env:SULTAN_GAME_DIR`. Details and the copy command are in
+> [`refs/PITFALLS.md`](../../../refs/PITFALLS.md) section 6.
 
 ## First launch (required for real interop)
 
+The build works before the first launch by compiling against
+[`refs/unity-stubs`](../../../refs/unity-stubs), but that build has every game
+binding compiled out (`GAME_INTEROP` is undefined): `/health` answers while the
+state stays empty. Real interop needs exactly one game launch:
+
 1. Close any previous game process.
-2. Build + deploy:
+2. Build + deploy (the stub build is expected at this point):
 
 ```powershell
 cd plugins/SultanObserver
@@ -28,7 +53,10 @@ cd plugins/SultanObserver
 
 3. Launch `Sultan's Game.exe` once. First IL2CPP boot generates `BepInEx/interop/*.dll` and may take several minutes.
 4. Confirm logs: `game/Sultan's Game/BepInEx/LogOutput.txt` contains `Sultan Observer Load`.
-5. Smoke:
+5. Run `.\deploy.ps1` again — with `BepInEx/interop` present the plugin compiles
+   against the generated assemblies (`GAME_INTEROP` defined) and gains the real
+   bindings.
+6. Smoke:
 
 ```powershell
 curl http://127.0.0.1:17890/health
@@ -48,4 +76,9 @@ Results appear in `/state?views=diagnostics` under `raw.typeProbe`.
 
 ## Compile-time stubs
 
-When `BepInEx/interop` is missing, the plugin builds against [`refs/unity-stubs`](../../../refs/unity-stubs). After first launch, rebuild so the project prefers real interop assemblies.
+`refs/unity-stubs/UnityEngine.CoreModule` is a checked-in stub of the slice of
+the Unity API this plugin touches. `SultanObserver.csproj` builds it
+automatically while `BepInEx/interop/UnityEngine.CoreModule.dll` is missing, so
+a fresh clone can run `dotnet build` (and CI / `dotnet test`) without the game.
+The stubs contain no game types: `HasGameInterop` stays false, so binding calls
+compile to `binding_missing` until the first launch generates real interop.

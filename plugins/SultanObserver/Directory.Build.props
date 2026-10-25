@@ -7,6 +7,8 @@
     <!-- Prefer Steam interop when repo copy is incomplete. -->
     <InteropDir Condition="!Exists('$(InteropDir)\Game.dll') And Exists('$(SteamGameDir)\BepInEx\interop\Game.dll')">$(SteamGameDir)\BepInEx\interop</InteropDir>
     <PluginOutDir>$(GameDir)\BepInEx\plugins</PluginOutDir>
+    <!-- Compile-time Unity stubs: used only until BepInEx generates interop. -->
+    <UnityStubProject>$(MSBuildThisFileDirectory)..\..\refs\unity-stubs\UnityEngine.CoreModule\UnityEngine.CoreModule.csproj</UnityStubProject>
     <UnityStubDir>$(MSBuildThisFileDirectory)..\..\refs\unity-stubs\UnityEngine.CoreModule\bin\Release\net6.0</UnityStubDir>
     <HasGameInterop Condition="Exists('$(InteropDir)\Game.dll') And Exists('$(InteropDir)\Core.dll') And Exists('$(InteropDir)\Common.dll')">true</HasGameInterop>
   </PropertyGroup>

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Compile-only stubs for the Unity API surface used by SultanObserver when
+    BepInEx/interop assemblies are not available yet (fresh clone / CI).
+
+    This project exists so `dotnet build plugins/SultanObserver` works before the
+    game has ever been launched. After the first BepInEx IL2CPP boot generates
+    game/Sultan's Game/BepInEx/interop/*.dll, SultanObserver.csproj prefers the
+    real interop assemblies and this project is no longer referenced.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>UnityEngine.CoreModule</AssemblyName>
+    <RootNamespace>UnityEngine</RootNamespace>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+    <NoWarn>$(NoWarn);CS0660;CS0661;CS0108;CS0114;CS1591;CS0649</NoWarn>
+  </PropertyGroup>
+</Project>

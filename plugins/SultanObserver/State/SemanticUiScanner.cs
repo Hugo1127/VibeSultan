@@ -29,6 +29,15 @@ namespace VibeSultan.Sultan.Observer.State
             _registry = registry ?? throw new ArgumentNullException(nameof(registry));
         }
 
+#if !GAME_INTEROP
+        /// <summary>
+        /// Without game bindings no affordance is runnable. The real implementation
+        /// lives in the GAME_INTEROP region further down; this keeps the
+        /// semantics-only build (and CI) compiling.
+        /// </summary>
+        private static bool IsActionEnabled(GameState state, string actionId) => false;
+#endif
+
         public SceneSnapshot Capture(GameState state, long snapshotVersion)
         {
             state ??= GameState.CreateEmpty();

@@ -17,6 +17,7 @@ import {
   shouldCompressContext,
   type ChatMessage,
 } from "./contextCompress.js";
+import { sanitizeToolMessageOrder } from "./messageOrder.js";
 import {
   mergeCompressedSnapshot,
   shouldStartBackgroundCompression,
@@ -1252,7 +1253,9 @@ export async function runAgentLoop(opts: {
         timed = await createTimedChatCompletion({
           client,
           model: cfg.openaiModel,
-          messages,
+          // Repair any assistant(tool_calls) -> non-tool gap before it reaches
+          // the API; providers reject that history with HTTP 400.
+          messages: sanitizeToolMessageOrder(messages),
           tools: agentTools,
           toolChoice: "auto",
           estimatePromptTokens,
@@ -1313,6 +1316,10 @@ export async function runAgentLoop(opts: {
       }
 
       let decisionPublished = false;
+      // User briefs produced while tools run must be queued: pushing them now
+      // would sit between the assistant tool_calls message and its tool
+      // results, which OpenAI-compatible endpoints reject with HTTP 400.
+      const deferredBriefs: string[] = [];
       for (const call of toolCalls) {
         if (call.type !== "function") continue;
         const name = call.function.name;
@@ -1403,7 +1410,7 @@ export async function runAgentLoop(opts: {
           const chainBrief = formatActionChainBrief(actionChain.observe(latestState, latestScene));
           if (chainBrief !== lastActionChainBrief) {
             lastActionChainBrief = chainBrief;
-            messages.push({ role: "user", content: chainBrief });
+            deferredBriefs.push(chainBrief);
           }
         }
 
@@ -1999,11 +2006,9 @@ export async function runAgentLoop(opts: {
                     forceReobserve: true,
                   };
                   if (rewind.plan?.nextAction === "start_new_game") {
-                    messages.push({
-                      role: "user",
-                      content:
-                        "【Recovery】无法继续回退。请 start_new_game 重开；不要重走 failed path。",
-                    });
+                    deferredBriefs.push(
+                      "【Recovery】无法继续回退。请 start_new_game 重开；不要重走 failed path。",
+                    );
                   } else if (rewind.plan?.nextAction === "try_sibling") {
                     // Resume normal planning at target day.
                   }
@@ -2103,6 +2108,11 @@ export async function runAgentLoop(opts: {
           tool_call_id: call.id,
           content: JSON.stringify(result),
         });
+      }
+
+      // Tool batch closed: now the queued user briefs are safe to append.
+      for (const content of deferredBriefs) {
+        messages.push({ role: "user", content });
       }
 
       // If tools omitted an embedded decision, still surface truncated reasoning in the HUD.
