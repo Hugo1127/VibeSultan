@@ -38,25 +38,25 @@ only reliable marker that the loader is the IL2CPP flavour.
 
 ## First launch (required for real interop)
 
-The build works before the first launch by compiling against
-[`refs/unity-stubs`](../../../refs/unity-stubs), but that build has every game
-binding compiled out (`GAME_INTEROP` is undefined): `/health` answers while the
-state stays empty. Real interop needs exactly one game launch:
+Interop assemblies only exist after the game has booted once with the loader.
+Do that **before** the first deploy — the reverse order produces a stub build
+(`/health` reports `hasInterop:false`, state stays empty, and the agent now fails
+fast with the recovery steps):
 
 1. Close any previous game process.
-2. Build + deploy (the stub build is expected at this point):
+2. Launch `Sultan's Game.exe` once. BepInEx runs Cpp2IL and writes
+   `BepInEx/interop/*.dll` (may take minutes on the first run). Quit after
+   `Generating interop assemblies` shows up in `BepInEx/LogOutput.log`.
+3. Build + deploy — with `BepInEx/interop` present the plugin compiles against
+   the generated assemblies (`GAME_INTEROP` defined) and has the real bindings:
 
 ```powershell
 cd plugins/SultanObserver
 .\deploy.ps1
 ```
 
-3. Launch `Sultan's Game.exe` once. First IL2CPP boot generates `BepInEx/interop/*.dll` and may take several minutes.
-4. Confirm logs: `game/Sultan's Game/BepInEx/LogOutput.txt` contains `Sultan Observer Load`.
-5. Run `.\deploy.ps1` again — with `BepInEx/interop` present the plugin compiles
-   against the generated assemblies (`GAME_INTEROP` defined) and gains the real
-   bindings.
-6. Smoke:
+4. Launch the game again and confirm the plugin log contains `Sultan Observer Load`.
+5. Smoke (`/health` should report `"hasInterop":true`):
 
 ```powershell
 curl http://127.0.0.1:17890/health

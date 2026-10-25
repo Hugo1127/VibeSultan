@@ -354,6 +354,8 @@ export interface HealthResponse {
   fingerprint?: string;
   pluginVersion?: string;
   versionSafe?: boolean;
+  /** False when the plugin was built against compile stubs (no game bindings). */
+  hasInterop?: boolean;
 }
 
 export interface AgentDecision {

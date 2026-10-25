@@ -91,6 +91,15 @@ namespace VibeSultan.Sultan.Observer.Export
                 }
                 catch (Exception ex)
                 {
+                    if (IsClientAbort(ex))
+                    {
+                        // Polling clients (agent health/state checks) routinely drop the
+                        // socket before the response is written; that is not an observer bug.
+                        _log.LogDebug("HTTP client aborted: " + ex.Message);
+                        try { ctx.Response.Abort(); } catch { /* ignore */ }
+                        continue;
+                    }
+
                     _log.LogWarning("HTTP handle error: " + ex.Message);
                     try
                     {
@@ -100,6 +109,26 @@ namespace VibeSultan.Sultan.Observer.Export
                     catch { /* ignore */ }
                 }
             }
+        }
+
+        /// <summary>
+        /// Win32 codes seen when a client closes the connection mid-response:
+        /// 1229 connection invalid, 995 operation aborted, 64 netname deleted,
+        /// 10053/10054 Winsock abort/reset.
+        /// </summary>
+        private static bool IsClientAbort(Exception ex)
+        {
+            var code = 0;
+            if (ex is HttpListenerException listenerException)
+            {
+                code = listenerException.ErrorCode;
+            }
+            else if (ex.InnerException is HttpListenerException inner)
+            {
+                code = inner.ErrorCode;
+            }
+
+            return code == 1229 || code == 995 || code == 64 || code == 10053 || code == 10054;
         }
 
         private void Handle(HttpListenerContext ctx)

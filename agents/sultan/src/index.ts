@@ -1,5 +1,6 @@
 import { config } from "./config.js";
 import { HttpGameOps } from "./game/HttpGameOps.js";
+import { assertObserverHasInterop } from "./game/interopGuard.js";
 import { createLlmClient } from "./llm/client.js";
 import { runAgentLoop } from "./agent/loop.js";
 import { AgentLogger } from "./log/AgentLogger.js";
@@ -33,6 +34,7 @@ async function main(): Promise<void> {
   const health = await ops.health();
   log.info("game_health", health as unknown as Record<string, unknown>);
   if (!health.ok) throw new Error(`Game health not ok: ${JSON.stringify(health)}`);
+  assertObserverHasInterop(health, config.gameBaseUrl);
   const gameFingerprint =
     typeof (health as { fingerprint?: string }).fingerprint === "string"
       ? (health as { fingerprint?: string }).fingerprint

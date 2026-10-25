@@ -81,20 +81,27 @@ Expand-Archive -Path refs\BepInEx-Unity.IL2CPP-6.0.0-be.785.zip `
 # 解压后应有 BepInEx\core\BepInEx.Unity.IL2CPP.dll
 ```
 
+**顺序很重要**：先启动一次游戏，让 BepInEx 生成 `BepInEx/interop/*.dll`，再跑 `deploy.ps1`。
+反过来（先部署再启动）会编出无游戏绑定的 stub 版：`/health` 里 `hasInterop:false`、state 恒为空，
+agent 会直接报错要求重新部署。
+
+```powershell
+# 1) 启动一次游戏，等 BepInEx\LogOutput.log 出现 "Generating interop assemblies" 后退出
+# 2) 部署（此时有 interop，GAME_INTEROP=true，编译完整插件）
+cd plugins/SultanObserver
+.\deploy.ps1
+# 3) 重新启动游戏，验证：/health 里应为 "hasInterop":true
+curl http://127.0.0.1:17890/health
+```
+
+> 没有 interop 时 `deploy.ps1` 会用 `refs/unity-stubs` 编译（仅供 CI / 无游戏的机器做编译验证），
+> 之后仍要在生成 interop 后再部署一次。
+
 > **启动位置**：`deploy.ps1` 默认只写仓库内的 `game/Sultan's Game/` 副本。
 > 但 Steam 有时会接管启动、从自己的安装目录（如 `D:\Steam\steamapps\common\Sultan's Game`）运行，
 > 那边没有 loader 就没有插件。需要走 Steam 时，把同一套 loader 镜像过去（只新增 loader 文件，
 > 不动游戏本体），再用 `$env:SULTAN_GAME_DIR` 让 `deploy.ps1` 同步插件；
 > 具体命令见 [`refs/PITFALLS.md`](refs/PITFALLS.md) 第 6 节。
-
-```powershell
-cd plugins/SultanObserver
-.\deploy.ps1
-
-# 首次没有 interop 时会用 refs/unity-stubs 编译：能起 HTTP、能查 /health，
-# 但游戏绑定全部被编译掉（GAME_INTEROP=false）。
-# 启动游戏一次生成 BepInEx/interop/*.dll 后，再跑一次 .\deploy.ps1 才是完整插件。
-```
 
 启动游戏，确认：
 

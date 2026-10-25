@@ -87,9 +87,18 @@ Expand-Archive -Path refs\BepInEx-Unity.IL2CPP-6.0.0-be.785.zip `
 需要更新到其它 bleeding edge 版本时：<https://builds.bepinex.dev/projects/bepinex_be/785>
 （文件名带 `+hash`，URL 里 `+` 要写成 `%2B`）。
 
-**流程**：解压 loader → 启动游戏一次（生成 `BepInEx/interop/*.dll`；首次要跑 Cpp2IL，
-通常十几秒到几分钟，日志里能看到 `Running Cpp2IL` 和 `Generating interop assemblies`）→
-**再跑一次 `deploy.ps1`**，这次才会定义 `GAME_INTEROP`、编译出完整插件。
+**流程**：解压 loader → **先启动游戏一次**（生成 `BepInEx/interop/*.dll`；首次要跑 Cpp2IL，
+通常十几秒到几分钟，日志里能看到 `Running Cpp2IL` 和 `Generating interop assemblies`，此时可以退出）
+→ **再跑 `deploy.ps1`**，这次才会定义 `GAME_INTEROP`、编译出完整插件 → 重新启动游戏。
+
+**最常见的顺序错误**：反过来"先 deploy 再启动"，于是拿到的是 stub 构建。表现为：
+
+- 插件能加载、`/health` 返回 `ok:true`，但 **`hasInterop:false`**；
+- `state` 里 `screen=unknown`、`initDone=false`、`inGame=false`，agent 启动阶段一直轮询；
+- 以前会干等 60 秒后报 `boot_timeout`；现在 `index.ts` 在读到 `hasInterop:false` 时**立即报错**，
+  提示"关游戏 → 确认 interop → 重新 deploy → 重启游戏"（`src/game/interopGuard.ts`）。
+
+修法：启动过游戏（interop 已生成）后，在**关闭游戏**的状态下再跑一次 `deploy.ps1`。
 
 ## 4. 坑：无 interop 时源码本身也编译不过
 
@@ -125,10 +134,10 @@ Expand-Archive -Path refs\BepInEx-Unity.IL2CPP-6.0.0-be.785.zip `
 
 **怎么区分部署的是哪种构建**：
 
-| 构建 | DLL 大小 | 程序集引用 | 日志特征 |
-|---|---|---|---|
-| stub | ~134 KB | 只有 `UnityEngine.CoreModule` | `PlayerActionRecorder: built without GAME_INTEROP` |
-| interop | ~306 KB | 含 `UnityEngine.IMGUIModule` / `UnityEngine.UIModule` | `Hud.AgentDecisionHud` 注入成功、patch ok=25 |
+| 构建 | DLL 大小 | `/health` | 程序集引用 | 日志特征 |
+|---|---|---|---|---|
+| stub | ~134 KB | `hasInterop:false` | 只有 `UnityEngine.CoreModule` | `PlayerActionRecorder: built without GAME_INTEROP` |
+| interop | ~300 KB | `hasInterop:true` | 含 `UnityEngine.IMGUIModule` / `UnityEngine.UIModule` | `Hud.AgentDecisionHud` 注入成功、patch ok=25 |
 
 ## 6. 坑：Steam 会从自己目录启动，仓库副本里的插件不生效
 
